@@ -84,6 +84,14 @@ export class UsersService {
     return !!user;
   }
 
+  // metodo para encontrar un usuario por id
+  // utilizado por middleware
+  async getOneById(id: number): Promise<UserI> {
+    return await this.userRepository.findOneOrFail({
+      where: {id : id}
+    });
+  }
+
   // creamos un metodo para crear y devolever el usuario creado
   private async findOne(id: number): Promise<UserI> {
     return await this.userRepository.findOne({where: {id}})

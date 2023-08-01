@@ -12,6 +12,7 @@ import { DtoHelperService } from './dto/dto-helper.service';
     TypeOrmModule.forFeature([User])
   ],
   controllers: [UsersController],
-  providers: [UsersService, DtoHelperService]
+  providers: [UsersService, DtoHelperService],
+  exports: [UsersService]
 })
 export class UsersModule {}
