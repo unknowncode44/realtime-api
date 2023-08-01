@@ -1,3 +1,4 @@
+import { ConnectionEntity } from "../../todo/entities/connection.entity";
 import { 
     Entity, 
     Column, 
@@ -5,7 +6,8 @@ import {
     BeforeInsert, 
     BeforeUpdate, 
     CreateDateColumn, 
-    UpdateDateColumn 
+    UpdateDateColumn, 
+    OneToMany
 } from "typeorm";
 
 @Entity()
@@ -27,6 +29,9 @@ export class User {
 
     @UpdateDateColumn()
     updated_at: Date;
+
+    @OneToMany(() =>  ConnectionEntity, (connection) => connection.connectedUser)
+    connections: ConnectionEntity[]
 
 
     @BeforeInsert()
