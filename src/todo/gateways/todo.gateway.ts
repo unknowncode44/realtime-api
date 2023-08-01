@@ -18,8 +18,9 @@ export class TodoGateway implements OnGatewayConnection {
 
   async handleConnection(socket: Socket) {
     try {
+      console.log(socket.handshake.auth.Authorization)
       // hacemos uso de nuestro servicio para verificar la autenticacion del token usando la informacion del socket
-      const decodedToken = await this.authService.verifyJwt(socket.handshake.headers.authorization);
+      const decodedToken = await this.authService.verifyJwt(socket.handshake.auth.Authorization);
       // si el token es valido obtendremos un usuario que buscaremos en nuestra bd
       const user: UserI = await this.userService.getOneById(decodedToken.user.id)
 
