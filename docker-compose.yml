@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+ 
+  # El servicio frontend constara de una aplicacion Angular que correra en el puerto 4200
+  # frontend:
+  #   build:
+  #     # Naturalmente especificamos nuestro dockerfile para que se tome la configuracion necesaria 
+  #     dockerfile: Dockerfile
+  #     # Especificamos nuestro directorio para que se utilice como contexto
+  #     context: ./realtime-app
+  #     # Nustro target por ahora es el de desarrollo, podemos cambiar de stage una vez finalizado el entorno de pruebas
+  #     target: development
+  #   # especificamos el comando de arranque  
+  #   command: npm run start
+  #   # Especificamos los volumenes necesarios que se montaran
+  #   volumes:
+  #     - ./realtime-app:/realtime/realtime-app/src/app
+  #     - /realtime-app/src/app/node_modules
+  #   # Como sabemos, angular por defecto corre en el puerto 4200  
+  #   ports:
+  #     - "4200:4200"
+  #   # Como necesitaremos de nuestra API, indicamos que depende de esta para la ejecucion
+  #   depends_on:
+  #     - api
+
+  # El servicio backend constar de una app nodel que utilizara el framework NestJS, es una API que correra en el puerto 3044
+  api:
+    build:
+      # Indicamos el nomnre de nuestro dockerfile para que tome las configuraciones inherentes 
+      dockerfile: Dockerfile
+      # Espicificamos nuestro directorio de la api como contexto
+      context: ./realtime-api
+      # Cambiar si necesitamos salir a produccion, por ahora solo trabajamos con el stage de desarrollo
+      target: development
+    # Indicamos los volumenes que se deberan montar  
+    volumes:
+      - ./realtime-api:/realtime-api/src/app
+      - /realtime-api/src/app/node_modules/
+    # modo desarrollo: npm run start:dev / modo depuracion: npm run start:debug
+    command: npm run start:dev
+    # dependeremos de la imagen postgres, ya que es necesaria pues sera nuestra base de datos
+    # depends_on:
+    #   - postgres
+    # pasamos la url de la base de datos, que definiremos en el servicio postgres (ver mas abajo)
+    environment:
+      DATABASE_URL: postgres://user:password@postgres:5432/realtime
+      JWT_SECRET: HeyHoLetsGo77
+    ports:
+      - 3044:3044
+
+  # Base de datos: Postgres SQL 
+  # postgres:
+  #   # usamos la imagen de postgres, version 14.4
+  #   image: postgres:14.4
+  #   # definimos las variasbles de entorno por defecto
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: realtime
+  #   # definimos los puertos en los que trabajara la base de datos  
+  #   ports:
+  #     - 35000:5432
+  
+  # # Postgres Admin, lo utilizaremos como gestor / administrador de nuestra base de datos
+  # postgres_admin:
+  #   # usamos la version 6.12
+  #   image: dpage/pgadmin4:6.12
+  #   # naturalmente depende del servicio postgres
+  #   depends_on:
+  #     - postgres
+  #   # definimos nuestras variables de entorno por defecto
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: password
+  #   # y los respectivos puertos
+  #   ports:
+  #     - 5050:80
+
+  
