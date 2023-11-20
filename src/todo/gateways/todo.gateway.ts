@@ -20,7 +20,7 @@ export class TodoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private todoService: TodoService
   ) {}
 
-
+  // mannejamos las desconexiones desde aca
   async handleDisconnect(socket: Socket) {
     await this.connectionService.deleteBySocket(socket.id)
     socket.disconnect()
@@ -28,6 +28,7 @@ export class TodoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(socket: Socket) {
     try {
+      // pasamos un mensaje en la consola cada vez que un usuario intenta conectarse
       console.log(socket.handshake.auth.Authorization)
       // hacemos uso de nuestro servicio para verificar la autenticacion del token usando la informacion del socket
       const decodedToken = await this.authService.verifyJwt(socket.handshake.auth.Authorization);
@@ -35,16 +36,20 @@ export class TodoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const user: UserI = await this.userService.getOneById(decodedToken.user.id)
 
       if(!user) {
+        // si el usuario no cuenta con un token valido ni existe en la base de datos
+        // lo desconectamos y mandamos un mensaje por consola
         console.log('Usuario no autorizado desconectado');
         this.disconnect(socket)
       } 
       else {
+        // si el usuario existe y cuenta con un token valiodo, enviamos un mensaje por consola
         console.log(`Usuario ${user.username} verificado`);
 
+        // creamos un registro de conexion
         await this.connectionService.create({socketId: socket.id, connectedUser: user});
 
+        // buscamos todos los todos y emitimos un mensaje al cliente conectado
         const todos = await this.todoService.findAll()
-
         return this.server.to(socket.id).emit('todos', todos)
       }
       
