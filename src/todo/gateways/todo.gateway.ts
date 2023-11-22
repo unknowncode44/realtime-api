@@ -63,6 +63,10 @@ export class TodoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @SubscribeMessage('addTodo')
     async onAddTodo(socket: Socket, todoItem: TodoItem){
+
+      // creamos un log de consola
+      console.log('Nuevo Todo Agregado', todoItem)
+
       // guardar la nueva tarea en la base de datos
       const createdTodoItem: TodoItem = await this.todoService.save(todoItem);
 
