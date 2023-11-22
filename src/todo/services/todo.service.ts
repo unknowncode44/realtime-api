@@ -12,11 +12,15 @@ export class TodoService {
         private readonly todoRepository: Repository<Todo>
     ){}
 
-    findAll(): Promise<TodoItem[]> {
+    async findAll(): Promise<TodoItem[]> {
         return this.todoRepository.find()
     }
 
-    saveAll(todoItems: TodoItem[]) : Promise<TodoItem[]> {
+    async saveAll(todoItems: TodoItem[]) : Promise<TodoItem[]> {
         return this.todoRepository.save(todoItems)
+    }
+
+    async save(todoItem: TodoItem) : Promise<TodoItem> {
+        return this.todoRepository.save(todoItem)
     }
 }

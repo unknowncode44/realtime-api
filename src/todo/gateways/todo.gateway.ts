@@ -1,11 +1,12 @@
 import { UnauthorizedException } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { AuthService } from '../../auth/services/auth.service';
 import { UsersService } from '../../users/services/users.service';
 import { UserI } from '../../users/user.interface';
 import { ConnectionService } from '../services/connection.service';
 import { TodoService } from '../services/todo.service';
+import { ConnectionI, TodoItem } from '../todo.interface';
 
 @WebSocketGateway({ namespace: 'todos', cors: {origin: ['http://localhost:3000', 'http://localhost:4200']}})
 export class TodoGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -22,7 +23,6 @@ export class TodoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // mannejamos las desconexiones desde aca
   async handleDisconnect(socket: Socket) {
-    await this.connectionService.deleteBySocket(socket.id)
     socket.disconnect()
   }
 
@@ -57,6 +57,23 @@ export class TodoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log('Usuario no autorizado desconectado');
       this.disconnect(socket)
     }
+
+    
+    }
+
+    @SubscribeMessage('addTodo')
+    async onAddTodo(socket: Socket, todoItem: TodoItem){
+      // guardar la nueva tarea en la base de datos
+      const createdTodoItem: TodoItem = await this.todoService.save(todoItem);
+
+      // publicar la nueva tarea a todos los usuarios conectados
+      const connections: ConnectionI[] = await this.connectionService.findAll()
+      for (let i = 0; i < connections.length; i++) {
+        const e = connections[i];
+        this.server.to(e.socketId).emit('addTodo', createdTodoItem);
+      }
+
+
 
       
   }
