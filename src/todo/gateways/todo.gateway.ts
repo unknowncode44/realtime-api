@@ -74,7 +74,7 @@ export class TodoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const connections: ConnectionI[] = await this.connectionService.findAll()
       for (let i = 0; i < connections.length; i++) {
         const e = connections[i];
-        this.server.to(e.socketId).emit('addTodo', createdTodoItem);
+        this.server.to(e.socketId).emit('createdTodo', createdTodoItem);
       }
 
 
